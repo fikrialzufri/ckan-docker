@@ -1,0 +1,57 @@
+/* Blog Extension Styles */
+.blog-posts {
+    margin-top: 20px;
+}
+
+.blog-post-item {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+}
+
+.blog-post-item h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.blog-post-item h2 a {
+    color: #333;
+    text-decoration: none;
+}
+
+.blog-post-item h2 a:hover {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+.blog-meta {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+.blog-meta .author,
+.blog-meta .date {
+    margin-right: 15px;
+}
+
+.blog-excerpt {
+    margin: 15px 0;
+    line-height: 1.6;
+}
+
+.blog-content {
+    margin: 20px 0;
+    line-height: 1.8;
+    font-size: 1.1em;
+}
+
+.blog-actions {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.actions {
+    margin-bottom: 20px;
+}
+

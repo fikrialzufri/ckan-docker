@@ -1,0 +1,147 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('New Blog Post') if not post else _('Edit Blog Post') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li>{% link_for _('Blog'), named_route='blog.index' %}</li>
+  <li class="active">{% link_for _('New Post') if not post else _('Edit Post'), named_route='blog.new' if not post else 'blog.edit', id=post.id if post else '' %}</li>
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('New Blog Post') if not post else _('Edit Blog Post') }}</h1>
+      
+      <form class="form-horizontal" method="post" action="" enctype="multipart/form-data">
+        <div class="control-group">
+          <label class="control-label" for="title">{{ _('Title') }}</label>
+          <div class="controls">
+            <input type="text" id="title" name="title" value="{{ post.title if post else '' }}" class="form-control" required>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <label class="control-label" for="content">{{ _('Content') }}</label>
+          <div class="controls">
+            <textarea id="content" name="content" class="form-control" rows="15" required>{{ post.content if post else '' }}</textarea>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <label class="control-label" for="thumbnail">{{ _('Thumbnail') }} <span class="text-danger">*</span></label>
+          <div class="controls">
+            <input type="file" id="thumbnail" name="thumbnail" accept="image/*" class="form-control" onchange="previewThumbnail(this)">
+            <p class="help-block">{{ _('Upload thumbnail image for this blog post') }}</p>
+            {% if post and post.thumbnail %}
+              <div class="existing-thumbnail" style="margin-top: 10px;">
+                <p><strong>{{ _('Current thumbnail') }}:</strong></p>
+                <img src="{{ post.thumbnail }}" alt="Thumbnail" style="max-width: 200px; max-height: 150px; border: 1px solid #ddd; padding: 5px; border-radius: 4px;">
+              </div>
+            {% endif %}
+            <div id="thumbnail-preview" style="margin-top: 10px; display: none;">
+              <p><strong>{{ _('Preview') }}:</strong></p>
+              <img id="thumbnail-preview-img" src="" alt="Thumbnail Preview" style="max-width: 200px; max-height: 150px; border: 1px solid #ddd; padding: 5px; border-radius: 4px;">
+            </div>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <label class="control-label" for="images">{{ _('Gallery Images') }}</label>
+          <div class="controls">
+            <input type="file" id="images" name="images" accept="image/*" multiple class="form-control" onchange="previewImages(this)">
+            <p class="help-block">{{ _('You can select multiple images for the gallery') }}</p>
+            {% if post and post.images %}
+              <div class="existing-images" style="margin-top: 10px;">
+                <p><strong>{{ _('Current images') }}:</strong></p>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                  {% for image in post.images %}
+                    <div style="position: relative;">
+                      <img src="{{ image }}" alt="Image {{ loop.index }}" style="max-width: 150px; max-height: 100px; border: 1px solid #ddd; padding: 5px; border-radius: 4px; object-fit: cover;">
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+            <div id="images-preview" style="margin-top: 10px; display: none;">
+              <p><strong>{{ _('Preview') }}:</strong></p>
+              <div id="images-preview-container" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">{{ _('Save') }}</button>
+          <a href="{{ h.url_for('blog.index') }}" class="btn btn-default">{{ _('Cancel') }}</a>
+        </div>
+      </form>
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading">
+      <i class="fa fa-info-circle"></i>
+      {{ _('Help') }}
+    </h2>
+    <div class="module-content">
+      <p>
+        {{ _('Isi form di samping untuk membuat atau mengedit post blog. Pastikan judul dan konten sudah diisi dengan benar.') }}
+      </p>
+      <p>
+        <strong>{{ _('Image Requirements') }}:</strong><br>
+        - {{ _('Thumbnail: Recommended size 800x600px') }}<br>
+        - {{ _('Gallery: Multiple images allowed') }}<br>
+        - {{ _('Supported formats: JPG, PNG, GIF') }}
+      </p>
+    </div>
+  </div>
+{% endblock %}
+
+<script>
+function previewThumbnail(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('thumbnail-preview').style.display = 'block';
+      document.getElementById('thumbnail-preview-img').src = e.target.result;
+    };
+    reader.readAsDataURL(input.files[0]);
+  } else {
+    document.getElementById('thumbnail-preview').style.display = 'none';
+  }
+}
+
+function previewImages(input) {
+  var previewContainer = document.getElementById('images-preview-container');
+  previewContainer.innerHTML = '';
+  
+  if (input.files && input.files.length > 0) {
+    document.getElementById('images-preview').style.display = 'block';
+    
+    for (var i = 0; i < input.files.length; i++) {
+      var reader = new FileReader();
+      reader.onload = (function(file) {
+        return function(e) {
+          var div = document.createElement('div');
+          div.style.position = 'relative';
+          var img = document.createElement('img');
+          img.src = e.target.result;
+          img.style.maxWidth = '150px';
+          img.style.maxHeight = '100px';
+          img.style.border = '1px solid #ddd';
+          img.style.padding = '5px';
+          img.style.borderRadius = '4px';
+          img.style.objectFit = 'cover';
+          div.appendChild(img);
+          previewContainer.appendChild(div);
+        };
+      })(input.files[i]);
+      reader.readAsDataURL(input.files[i]);
+    }
+  } else {
+    document.getElementById('images-preview').style.display = 'none';
+  }
+}
+</script>
+

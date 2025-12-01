@@ -1,0 +1,67 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Blog') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{% link_for _('Blog'), named_route='blog.index' %}</li>
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('Blog Posts') }}</h1>
+      
+      {% if c.userobj and c.userobj.sysadmin %}
+        <div class="actions">
+          {% link_for _('New Post'), named_route='blog.new', class_='btn btn-primary', icon='plus-square' %}
+        </div>
+      {% endif %}
+      
+      <div class="blog-posts">
+        {% if posts %}
+          {% for post in posts %}
+            <div class="blog-post-item" style="margin-bottom: 30px;">
+              {% if post.thumbnail %}
+                <div style="float: left; margin-right: 20px; margin-bottom: 10px;">
+                  <a href="{{ h.url_for('blog.read', id=post.id) }}">
+                    <img src="{{ post.thumbnail }}" alt="{{ post.title }}" style="max-width: 200px; max-height: 150px; object-fit: cover; border-radius: 4px;">
+                  </a>
+                </div>
+              {% endif %}
+              <div>
+                <h2><a href="{{ h.url_for('blog.read', id=post.id) }}">{{ post.title }}</a></h2>
+                <p class="blog-meta">
+                  <span class="author">{{ _('By') }} {{ post.author }}</span>
+                  <span class="date">{{ post.created }}</span>
+                </p>
+                <div class="blog-excerpt">
+                  {{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}
+                </div>
+                <a href="{{ h.url_for('blog.read', id=post.id) }}" class="btn btn-default btn-sm">{{ _('Read more') }}</a>
+              </div>
+              <div style="clear: both;"></div>
+            </div>
+            <hr>
+          {% endfor %}
+        {% else %}
+          <p>{{ _('No blog posts yet.') }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading">
+      <i class="fa fa-info-circle"></i>
+      {{ _('About Blog') }}
+    </h2>
+    <div class="module-content">
+      <p>
+        {{ _('Blog ini berisi update dan informasi terkini tentang data dan aktivitas di portal CKAN ini.') }}
+      </p>
+    </div>
+  </div>
+{% endblock %}
+

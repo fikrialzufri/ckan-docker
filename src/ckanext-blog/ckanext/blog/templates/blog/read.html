@@ -1,0 +1,110 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ post.title if post else _('Blog Post') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li>{% link_for _('Blog'), named_route='blog.index' %}</li>
+  {% if post %}
+    <li class="active">{% link_for post.title, named_route='blog.read', id=post.id %}</li>
+  {% endif %}
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module">
+    <div class="module-content">
+      {% if post %}
+        {% if c.userobj and c.userobj.sysadmin %}
+          <div class="actions pull-right">
+            {% link_for _('Edit'), named_route='blog.edit', id=post.id, class_='btn btn-default', icon='edit' %}
+            {% link_for _('Delete'), named_route='blog.delete', id=post.id, class_='btn btn-danger', icon='trash' %}
+          </div>
+        {% endif %}
+        
+        <h1 class="page-heading">{{ post.title }}</h1>
+      
+        <div class="blog-meta">
+          <span class="author">{{ _('By') }} {{ post.author }}</span>
+          <span class="date">{{ post.created }}</span>
+        </div>
+        
+        {% if post.thumbnail or (post.images and post.images|length > 0) %}
+        <div class="blog-images-slideshow" style="margin: 20px 0;">
+          <div id="blogCarousel" class="carousel slide" data-ride="carousel" style="max-width: 800px; margin: 0 auto;">
+            <ol class="carousel-indicators">
+              {% if post.thumbnail %}
+                <li data-target="#blogCarousel" data-slide-to="0" class="active"></li>
+              {% endif %}
+              {% if post.images and post.images|length > 0 %}
+                {% for image in post.images %}
+                  <li data-target="#blogCarousel" data-slide-to="{{ loop.index0 + (1 if post.thumbnail else 0) }}" {% if not post.thumbnail and loop.first %}class="active"{% endif %}></li>
+                {% endfor %}
+              {% endif %}
+            </ol>
+            <div class="carousel-inner">
+              {% if post.thumbnail %}
+                <div class="item active">
+                  <img src="{{ post.thumbnail }}" alt="Thumbnail" style="width: 100%; max-height: 500px; object-fit: contain; background-color: #f5f5f5;">
+                  <div class="carousel-caption">
+                    <p>{{ _('Thumbnail') }}</p>
+                  </div>
+                </div>
+              {% endif %}
+              {% if post.images and post.images|length > 0 %}
+                {% for image in post.images %}
+                  <div class="item {% if not post.thumbnail and loop.first %}active{% endif %}">
+                    <img src="{{ image }}" alt="Image {{ loop.index }}" style="width: 100%; max-height: 500px; object-fit: contain; background-color: #f5f5f5;" onerror="this.style.display='none';">
+                    <div class="carousel-caption">
+                      <p>{{ _('Image') }} {{ loop.index }}</p>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+            {% if (post.thumbnail and post.images and post.images|length > 0) or (post.images and post.images|length > 1) %}
+            <a class="left carousel-control" href="#blogCarousel" data-slide="prev">
+              <span class="glyphicon glyphicon-chevron-left"></span>
+              <span class="sr-only">{{ _('Previous') }}</span>
+            </a>
+            <a class="right carousel-control" href="#blogCarousel" data-slide="next">
+              <span class="glyphicon glyphicon-chevron-right"></span>
+              <span class="sr-only">{{ _('Next') }}</span>
+            </a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+        
+        <div class="blog-content">
+          {{ post.content|safe }}
+        </div>
+        
+        <div class="blog-actions">
+          <a href="{{ h.url_for('blog.index') }}" class="btn btn-default">{{ _('Back to Blog') }}</a>
+        </div>
+      {% else %}
+        <div class="alert alert-warning">
+          <p>{{ _('Blog post not found') }}</p>
+          <a href="{{ h.url_for('blog.index') }}" class="btn btn-default">{{ _('Back to Blog') }}</a>
+        </div>
+      {% endif %}
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary_content %}
+  {% if post %}
+    <div class="module module-narrow module-shallow">
+      <h2 class="module-heading">
+        <i class="fa fa-info-circle"></i>
+        {{ _('Blog Post') }}
+      </h2>
+      <div class="module-content">
+        <p class="blog-meta">
+          <strong>{{ _('Author') }}:</strong> {{ post.author }}<br>
+          <strong>{{ _('Date') }}:</strong> {{ post.created }}
+        </p>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
